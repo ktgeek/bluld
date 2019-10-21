@@ -23,7 +23,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace BlinkstickOpenwrt;
+using namespace BlinkstickUserspace;
 
 int main()
 {

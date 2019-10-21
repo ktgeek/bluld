@@ -27,7 +27,7 @@
 #include <linux/uleds.h>
 #include <poll.h>
 
-namespace BlinkstickOpenwrt
+namespace BlinkstickUserspace
 {
 class LEDBinding
 {

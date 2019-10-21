@@ -24,7 +24,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-using namespace BlinkstickOpenwrt;
+using namespace BlinkstickUserspace;
 
 LEDBinding::LEDBinding(std::string name, uint8_t red, uint8_t green, uint8_t blue)
   : mName(name), mRed(red), mGreen(green), mBlue(blue)
