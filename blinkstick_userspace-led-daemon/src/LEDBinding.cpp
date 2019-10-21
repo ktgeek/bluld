@@ -31,8 +31,8 @@ LEDBinding::LEDBinding(std::string name, uint8_t red, uint8_t green, uint8_t blu
 {
 }
 
-LEDBinding::LEDBinding(std::string name, std::shared_ptr<void *> blinkLed, uint8_t red, uint8_t green, uint8_t blue)
-  : mName(name), mBlinkLed(blinkLed), mRed(red), mGreen(green), mBlue(blue)
+LEDBinding::LEDBinding(std::string name, BlinkStickPtr blinkstick, int index, uint8_t red, uint8_t green, uint8_t blue)
+  : mName(name), mBlinkstick(blinkstick), mIndex(index), mRed(red), mGreen(green), mBlue(blue)
 {
 }
 

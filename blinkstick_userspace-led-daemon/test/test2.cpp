@@ -19,43 +19,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#pragma once
-
-#include <cstdint>
-#include <memory>
-
-#include <linux/uleds.h>
-#include <poll.h>
-
-#include <blinkstick_userspace_led_daemon/blinkstick_userspace_led_daemon_fwd.hpp>
 #include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
 
-namespace BlinkstickUserspace
+#include <iostream>
+
+using namespace BlinkstickUserspace;
+
+int main()
 {
-class LEDBinding
-{
-  public:
-    LEDBinding(std::string name, uint8_t red = 255, uint8_t green = 0, uint8_t blue = 0);
-    LEDBinding(std::string name, BlinkStickPtr blinkstick, int index, uint8_t red = 255, uint8_t green = 0, uint8_t blue = 0);
-    ~LEDBinding();
+  BlinkStickVectorPtr blinkSticks = BlinkStick::find_all();
 
-    void registerUserSpaceLED();
+  std::cout << "We found " << blinkSticks->size() << " blinkstick(s)" << std::endl;
 
-    struct pollfd getPollFd();
+  int count = 0;
+  for (BlinkStickVector::iterator i = blinkSticks->begin(); i != blinkSticks->end(); i++)
+  {
+    std::cout << "Blinkstick " << ++count << std::endl;
+    BlinkStickPtr blinkStick = *i;
+    std::cout << blinkStick->toString();
+    std::cout << "  InfoBlock1: " << blinkStick->getInfoBlock(1) << std::endl;
+  }
 
-    int getBrightness();
-
-    std::string getName();
-
-  private:
-    uint8_t mRed;
-    uint8_t mGreen;
-    uint8_t mBlue;
-
-    std::string mName;
-    BlinkStickPtr mBlinkstick;
-    int mIndex;
-    struct uleds_user_dev mUledsUserDevStruct;
-    int mULedsFileDescriptor;
-};
-} // namespace BlinkstickUserspace
+}

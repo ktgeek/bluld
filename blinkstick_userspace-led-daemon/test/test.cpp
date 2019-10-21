@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include <blinkstick_userspace_led_daemon/LEDBinding.hpp>
+#include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
 #include <iostream>
 #include <vector>
 
@@ -27,7 +28,7 @@ using namespace BlinkstickUserspace;
 
 int main()
 {
-  std::vector<LEDBindingPtr> ledBindings;
+  LEDBindingVector ledBindings;
   for (int i = 0; i < 6; i++)
   {
     std::string ledName("blinkstick::");
@@ -38,7 +39,7 @@ int main()
   struct pollfd fds[ledBindings.size()];
 
   int count = 0;
-  for (std::vector<LEDBindingPtr>::iterator i = ledBindings.begin(); i != ledBindings.end(); i++)
+  for (LEDBindingVector::iterator i = ledBindings.begin(); i != ledBindings.end(); i++)
   {
     LEDBindingPtr p = *i;
     p->registerUserSpaceLED();
@@ -53,7 +54,7 @@ int main()
     {
       if (fds[i].revents && POLLIN)
       {
-        LEDBindingPtr p = ledBindings.at(i);
+        LEDBindingPtr p = ledBindings[i];
         std::cout << p->getName() << " got pinged" << std::endl;
         std::cout << p->getBrightness() << " brightness!" << std::endl;
       }

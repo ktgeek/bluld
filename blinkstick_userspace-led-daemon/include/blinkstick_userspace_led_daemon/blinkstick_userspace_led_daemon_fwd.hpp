@@ -21,41 +21,18 @@
 // SOFTWARE.
 #pragma once
 
-#include <cstdint>
 #include <memory>
-
-#include <linux/uleds.h>
-#include <poll.h>
-
-#include <blinkstick_userspace_led_daemon/blinkstick_userspace_led_daemon_fwd.hpp>
-#include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
+#include <vector>
 
 namespace BlinkstickUserspace
 {
-class LEDBinding
-{
-  public:
-    LEDBinding(std::string name, uint8_t red = 255, uint8_t green = 0, uint8_t blue = 0);
-    LEDBinding(std::string name, BlinkStickPtr blinkstick, int index, uint8_t red = 255, uint8_t green = 0, uint8_t blue = 0);
-    ~LEDBinding();
+class BlinkStick;
+typedef std::shared_ptr<BlinkStick> BlinkStickPtr;
+typedef std::vector<BlinkStickPtr> BlinkStickVector;
+typedef std::shared_ptr<BlinkStickVector> BlinkStickVectorPtr;
 
-    void registerUserSpaceLED();
-
-    struct pollfd getPollFd();
-
-    int getBrightness();
-
-    std::string getName();
-
-  private:
-    uint8_t mRed;
-    uint8_t mGreen;
-    uint8_t mBlue;
-
-    std::string mName;
-    BlinkStickPtr mBlinkstick;
-    int mIndex;
-    struct uleds_user_dev mUledsUserDevStruct;
-    int mULedsFileDescriptor;
-};
+class LEDBinding;
+typedef std::shared_ptr<LEDBinding> LEDBindingPtr;
+typedef std::vector<LEDBindingPtr> LEDBindingVector;
+typedef std::vector<LEDBindingVector> LEDBindingVectorPtr;
 } // namespace BlinkstickUserspace

@@ -21,41 +21,40 @@
 // SOFTWARE.
 #pragma once
 
-#include <cstdint>
-#include <memory>
-
-#include <linux/uleds.h>
-#include <poll.h>
+#include <hidapi/hidapi.h>
 
 #include <blinkstick_userspace_led_daemon/blinkstick_userspace_led_daemon_fwd.hpp>
-#include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
 
 namespace BlinkstickUserspace
 {
-class LEDBinding
+class BlinkStick
 {
   public:
-    LEDBinding(std::string name, uint8_t red = 255, uint8_t green = 0, uint8_t blue = 0);
-    LEDBinding(std::string name, BlinkStickPtr blinkstick, int index, uint8_t red = 255, uint8_t green = 0, uint8_t blue = 0);
-    ~LEDBinding();
+    BlinkStick(hid_device* device);
+    ~BlinkStick();
 
-    void registerUserSpaceLED();
+    static BlinkStickPtr find();
+    static BlinkStickVectorPtr find_all();
 
-    struct pollfd getPollFd();
+    std::string getInfoBlock(int id);
+    void getColors();
 
-    int getBrightness();
-
-    std::string getName();
+    std::string toString();
 
   private:
-    uint8_t mRed;
-    uint8_t mGreen;
-    uint8_t mBlue;
+    static int const VENDOR_ID = 0x20a0;
+    static int const PRODUCT_ID = 0x41e5;
 
-    std::string mName;
-    BlinkStickPtr mBlinkstick;
-    int mIndex;
-    struct uleds_user_dev mUledsUserDevStruct;
-    int mULedsFileDescriptor;
+    static int const COLORS = 0x1;
+    static int const INFO_BLOCK_1 = 0x2;
+    static int const INFO_BLOCK_2 = 0x3;
+    static int const MODE = 0x4;
+
+    std::string mManufacturer;
+    std::string mProduct;
+    std::string mSerialNumber;
+
+    hid_device* mDevice;
 };
+
 } // namespace BlinkstickUserspace
