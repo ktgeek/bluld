@@ -1,6 +1,7 @@
 Sources of information:
   o https://github.com/torvalds/linux/blob/master/tools/leds/uledmon.c
   o https://www.kernel.org/doc/Documentation/leds/uleds.txt
+  o https://www.kernel.org/doc/Documentation/leds/leds-class.txt
 
 BlinkStick APIs
   o https://www.blinkstick.com/help/api-implementations
