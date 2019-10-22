@@ -1,3 +1,4 @@
+
 // MIT License
 //
 // Copyright (c) 2019 Keith T. Garner
@@ -22,40 +23,37 @@
 #pragma once
 
 #include <cstdint>
-#include <memory>
-
 #include <linux/uleds.h>
 #include <poll.h>
 
 #include <blinkstick_userspace_led_daemon/blinkstick_userspace_led_daemon_fwd.hpp>
-#include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
 
 namespace BlinkstickUserspace
 {
 class LEDBinding
 {
-  public:
-    LEDBinding(std::string name, uint8_t red = 255, uint8_t green = 0, uint8_t blue = 0);
-    LEDBinding(std::string name, BlinkStickPtr blinkstick, int index, uint8_t red = 255, uint8_t green = 0, uint8_t blue = 0);
-    ~LEDBinding();
+public:
+  LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color = NULL);
+  ~LEDBinding();
 
-    void registerUserSpaceLED();
+  void registerUserSpaceLED();
 
-    struct pollfd getPollFd();
+  struct pollfd getPollFd();
 
-    int getBrightness();
+  int getBrightness();
 
-    std::string getName();
+  bool setOn();
+  bool setOff();
 
-  private:
-    uint8_t mRed;
-    uint8_t mGreen;
-    uint8_t mBlue;
+  bool processBrightnessChange();
 
-    std::string mName;
-    BlinkStickPtr mBlinkstick;
-    int mIndex;
-    struct uleds_user_dev mUledsUserDevStruct;
-    int mULedsFileDescriptor;
+  std::string getName();
+
+private:
+  std::string mName;
+  BlinkStickPtr mBlinkstick;
+  uint8_t mIndex;
+  RGBColorPtr mColor;
+  int mULedsFileDescriptor;
 };
 } // namespace BlinkstickUserspace

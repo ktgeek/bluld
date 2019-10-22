@@ -20,26 +20,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <blinkstick_userspace_led_daemon/RGBColor.hpp>
 #include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
 
 using namespace BlinkstickUserspace;
 
-BlinkStick::BlinkStick(hid_device* device)
-  : mDevice(device)
+BlinkStick::BlinkStick(hid_device *device)
+    : mDevice(device)
 {
-  wchar_t tmpstring[255];
-  hid_get_manufacturer_string(device, tmpstring, 255);
-  mManufacturer = std::string(std::begin(tmpstring), std::end(tmpstring) - 1);
-
-  hid_get_product_string(device, tmpstring, 255);
-  mProduct = std::string(std::begin(tmpstring), std::end(tmpstring) - 1);
-
-  hid_get_serial_number_string(device, tmpstring, 255);
-  mSerialNumber = std::string(std::begin(tmpstring), std::end(tmpstring) - 1);
 }
 
 BlinkStick::~BlinkStick()
 {
+}
+
+BlinkStickPtr BlinkStick::find()
+{
+  BlinkStickVectorPtr blinkSticks = find_all();
+  if (blinkSticks->size() < 1)
+  {
+    return NULL;
+  }
+
+  return blinkSticks->front();
 }
 
 BlinkStickVectorPtr BlinkStick::find_all()
@@ -47,7 +50,7 @@ BlinkStickVectorPtr BlinkStick::find_all()
   BlinkStickVectorPtr blinkSticks = BlinkStickVectorPtr(new BlinkStickVector());
 
   struct hid_device_info *device_info = hid_enumerate(VENDOR_ID, PRODUCT_ID);
-  if (device_info == NULL)
+  if (!device_info)
   {
     return blinkSticks;
   }
@@ -64,45 +67,320 @@ BlinkStickVectorPtr BlinkStick::find_all()
   return blinkSticks;
 }
 
-BlinkStickPtr BlinkStick::find()
+std::string BlinkStick::getManufacturer()
 {
-  BlinkStickVectorPtr blinkSticks = find_all();
-  if (blinkSticks->size() < 1)
+  wchar_t tmpstring[255];
+
+  int result = -1;
+  for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
   {
-    return BlinkStickPtr(NULL);
+    result = hid_get_manufacturer_string(mDevice, tmpstring, 255);
   }
 
-  return blinkSticks->front();
+  if (result == -1)
+  {
+    return "";
+  }
+
+  return std::string(std::begin(tmpstring), std::end(tmpstring) - 1);
+}
+
+std::string BlinkStick::getProduct()
+{
+  wchar_t tmpstring[255];
+
+  int result = -1;
+  for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
+  {
+    result = hid_get_product_string(mDevice, tmpstring, 255);
+  }
+
+  if (result == -1)
+  {
+    return "";
+  }
+
+  return std::string(std::begin(tmpstring), std::end(tmpstring) - 1);
+}
+
+std::string BlinkStick::getSerialNumber()
+{
+  wchar_t tmpstring[255];
+
+  int result = -1;
+  for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
+  {
+    result = hid_get_serial_number_string(mDevice, tmpstring, 255);
+  }
+
+  if (result == -1)
+  {
+    return "";
+  }
+
+  return std::string(std::begin(tmpstring), std::end(tmpstring) - 1);
 }
 
 std::string BlinkStick::getInfoBlock(int id)
 {
   unsigned char data[33];
   data[0] = id == 1 ? INFO_BLOCK_1 : INFO_BLOCK_2;
-  int read = hid_get_feature_report(mDevice, data, sizeof(data));
+  const int read = getFeatureReportWithRetry(data, sizeof(data));
 
   if (read < 2)
   {
-    return std::string("");
+    return "";
   }
 
   std::string result(std::begin(data) + 1, std::end(data));
   return result;
 }
 
-void BlinkStick::getColors()
+RGBColorPtr BlinkStick::getColor()
 {
-  unsigned char data[33];
-  data[0] = COLORS;
+  unsigned char data[4];
+  data[0] = FIRST_LED_COLOR;
 
-  int read = hid_get_feature_report(mDevice, data, sizeof(data));
+  const int result = getFeatureReportWithRetry(data, sizeof(data));
+
+  if (result == -1)
+  {
+    // couldn't read from the stick
+    return NULL;
+  }
+
+  return RGBColorPtr(new RGBColor(data[1], data[2], data[3]));
+}
+
+RGBColorPtr BlinkStick::getColor(uint8_t index)
+{
+  if (index == 0)
+  {
+    return getColor();
+  }
+
+  // When we call getColors, we don't what to give it the
+  // index we're looking for, but the total number of leds.
+  // Since we're 0 based, we need to +1 here.
+  RGBColorVectorPtr colors = getColors(index + 1);
+
+  return colors->back();
+}
+
+RGBColorVectorPtr BlinkStick::getColors(uint8_t led_count)
+{
+  RGBColorVectorPtr colors = RGBColorVectorPtr(new RGBColorVector());
+
+  if (led_count == 1)
+  {
+    colors->push_back(getColor());
+    return colors;
+  }
+
+  unsigned char report_id;
+  int max_leds;
+  std::tie(report_id, max_leds) = getReportData(led_count);
+
+  // +2 because 1) report and 2) channel
+  unsigned char data[max_leds * 3 + 2];
+  data[0] = report_id;
+
+  const int read = getFeatureReportWithRetry(data, sizeof(data));
+
+  for (int i = 2; i <= led_count * 3; i = i + 3)
+  {
+    // Colors come back from the stick as green, red, blue
+    colors->push_back(RGBColorPtr(new RGBColor(data[i + 1], data[i], data[i + 2])));
+  }
+
+  return colors;
+}
+
+bool BlinkStick::setColor(RGBColorPtr color)
+{
+  unsigned char data[4];
+  data[0] = FIRST_LED_COLOR;
+
+  std::tie(data[1], data[2], data[3]) = color->getValues();
+
+  const int result = sendFeatureReportWithRetry(data, sizeof(data));
+  if (result == -1)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool BlinkStick::setColor(uint8_t index, RGBColorPtr color)
+{
+  if (index == 0)
+  {
+    return setColor(color);
+  }
+
+  unsigned char data[6] = {0};
+  data[0] = OTHER_LED_COLOR;
+  // This should be the channel. I've hard coded it for now as I don't really have
+  // support for channel yet. (I don't think my Blinkstrick Strip uses it.)
+  // data[1] = 0;
+  data[2] = index;
+  std::tie(data[3], data[4], data[5]) = color->getValues();
+
+  const int result = sendFeatureReportWithRetry(data, sizeof(data));
+
+  if (result == -1)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool BlinkStick::setColors(uint8_t led_count, RGBColorVectorPtr colors)
+{
+  if (led_count == 1)
+  {
+    return setColor(colors->front());
+  }
+
+  unsigned char report_id;
+  int max_leds;
+  std::tie(report_id, max_leds) = getReportData(led_count);
+
+  // +2 because 1) report and 2) channel
+  unsigned char data[max_leds * 3 + 2] = {0};
+  data[0] = report_id;
+
+  for (int i = 0; i < led_count; i++)
+  {
+    int base = i * 3 + 2;
+    RGBColorPtr color = colors->at(i);
+    std::tie(data[base + 1], data[base], data[base + 2]) = color->getValues();
+  }
+
+  const int result = sendFeatureReportWithRetry(data, sizeof(data));
+
+  if (result == -1)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool BlinkStick::setOff()
+{
+  unsigned char data[4] = {0};
+  data[0] = FIRST_LED_COLOR;
+
+  const int result = sendFeatureReportWithRetry(data, sizeof(data));
+
+  if (result == -1)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool BlinkStick::setOff(uint8_t index)
+{
+  if (index == 0)
+  {
+    return setOff();
+  }
+
+  unsigned char data[6] = {0};
+  data[0] = OTHER_LED_COLOR;
+  // This should be the channel. I've hard coded it for now as I don't really have
+  // support for channel yet. (I don't think my Blinkstrick Strip uses it.)
+  // data[1] = 0;
+  data[2] = index;
+
+  const int result = sendFeatureReportWithRetry(data, sizeof(data));
+
+  if (result == -1)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool BlinkStick::setManyOff(uint8_t led_count)
+{
+  unsigned char report_id;
+  int max_leds;
+  std::tie(report_id, max_leds) = getReportData(led_count);
+
+  unsigned char data[max_leds * 3 + 2] = {0};
+  data[0] = report_id;
+
+  const int result = sendFeatureReportWithRetry(data, sizeof(data));
+
+  if (result == -1)
+  {
+    return false;
+  }
+
+  return true;
 }
 
 std::string BlinkStick::toString()
 {
-  std::string result = std::string("Manufacturer: ").append(mManufacturer).append("\n");
-  result.append("Product: ").append(mProduct).append("\n");
-  result.append("Serial Number: ").append(mSerialNumber).append("\n");
+  std::string result = std::string("Manufacturer: ").append(getManufacturer()).append("\n");
+  result.append("Product: ").append(getProduct()).append("\n");
+  result.append("Serial Number: ").append(getSerialNumber()).append("\n");
+
+  return result;
+}
+
+BlinkStick::color_report_data BlinkStick::getReportData(uint8_t led_count)
+{
+  unsigned char report_id = SIXTY_FOUR_LED_REPORT;
+  int max_leds = 64;
+
+  if (led_count > 0 && led_count < 9)
+  {
+    report_id = EIGHT_LED_REPORT;
+    max_leds = 8;
+  }
+
+  if (led_count > 8 && led_count < 17)
+  {
+    report_id = SIXTEEN_LED_REPORT;
+    max_leds = 16;
+  }
+
+  if (led_count > 16 && led_count < 33)
+  {
+    report_id = THIRTY_TWO_LED_REPORT;
+    max_leds = 32;
+  }
+
+  return std::make_tuple(report_id, max_leds);
+}
+
+// Back to back quick communication seems to fail sometimes, let's try up to 10 times;
+int BlinkStick::sendFeatureReportWithRetry(unsigned char *data, size_t size)
+{
+  int result = -1;
+  for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
+  {
+    result = hid_send_feature_report(mDevice, data, size);
+  }
+  return result;
+}
+
+// Back to back quick communication seems to fail, let's do a retry.
+int BlinkStick::getFeatureReportWithRetry(unsigned char *data, size_t size)
+{
+  int result = -1;
+  for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
+  {
+    result = hid_get_feature_report(mDevice, data, size);
+  }
 
   return result;
 }

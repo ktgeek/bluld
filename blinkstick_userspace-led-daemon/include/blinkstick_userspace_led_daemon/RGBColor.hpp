@@ -1,3 +1,4 @@
+
 // MIT License
 //
 // Copyright (c) 2019 Keith T. Garner
@@ -19,44 +20,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#include <blinkstick_userspace_led_daemon/LEDBinding.hpp>
-#include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
+#pragma once
 
-using namespace BlinkstickUserspace;
+#include <cstdint>
+#include <map>
 
-int main()
+#include <blinkstick_userspace_led_daemon/blinkstick_userspace_led_daemon_fwd.hpp>
+
+namespace BlinkstickUserspace
 {
-  hid_init();
 
-  BlinkStickPtr blinkstick = BlinkStick::find();
+typedef std::tuple<uint8_t, uint8_t, uint8_t> RGBTuple;
 
-  LEDBindingVector ledBindings;
-  for (int i = 0; i < 8; i++)
-  {
-    std::string ledName("blinkstick::");
-    ledName.append(std::to_string(i));
-    ledBindings.push_back(LEDBindingPtr(new LEDBinding(ledName, blinkstick, i)));
-  }
+class RGBColor
+{
+public:
+  RGBColor();
 
-  struct pollfd fds[ledBindings.size()];
+  RGBColor(uint8_t red, uint8_t green, uint8_t blue);
 
-  int count = 0;
-  for (LEDBindingPtr p : ledBindings)
-  {
-    p->registerUserSpaceLED();
-    fds[count++] = p->getPollFd();
-  }
+  RGBTuple getValues();
 
-  while (1)
-  {
-    int pinged = poll(fds, ledBindings.size(), -1);
+  static RGBColorPtr getFriendlyColor(std::string name);
 
-    for (int i = 0; i < ledBindings.size(); i++)
-    {
-      if (fds[i].revents && POLLIN)
-      {
-        ledBindings[i]->processBrightnessChange();
-      }
-    }
-  }
-}
+  std::string toString();
+
+private:
+  uint8_t mRed;
+  uint8_t mGreen;
+  uint8_t mBlue;
+
+  static std::map<std::string, RGBColorPtr> sFriendlyColors;
+};
+} // namespace BlinkstickUserspace

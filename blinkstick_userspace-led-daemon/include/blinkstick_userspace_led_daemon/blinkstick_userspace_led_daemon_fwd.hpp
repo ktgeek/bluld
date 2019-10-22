@@ -34,5 +34,10 @@ typedef std::shared_ptr<BlinkStickVector> BlinkStickVectorPtr;
 class LEDBinding;
 typedef std::shared_ptr<LEDBinding> LEDBindingPtr;
 typedef std::vector<LEDBindingPtr> LEDBindingVector;
-typedef std::vector<LEDBindingVector> LEDBindingVectorPtr;
+typedef std::shared_ptr<LEDBindingVector> LEDBindingVectorPtr;
+
+class RGBColor;
+typedef std::shared_ptr<RGBColor> RGBColorPtr;
+typedef std::vector<RGBColorPtr> RGBColorVector;
+typedef std::shared_ptr<RGBColorVector> RGBColorVectorPtr;
 } // namespace BlinkstickUserspace

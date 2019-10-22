@@ -19,21 +19,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#include <blinkstick_userspace_led_daemon/LEDBinding.hpp>
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
+#include <poll.h>
+
+#include <blinkstick_userspace_led_daemon/LEDBinding.hpp>
+#include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
+#include <blinkstick_userspace_led_daemon/RGBColor.hpp>
 
 using namespace BlinkstickUserspace;
 
-LEDBinding::LEDBinding(std::string name, uint8_t red, uint8_t green, uint8_t blue)
-  : mName(name), mRed(red), mGreen(green), mBlue(blue)
+LEDBinding::LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color)
+    : mName(name), mBlinkstick(blinkstick), mIndex(index), mColor(color)
 {
-}
-
-LEDBinding::LEDBinding(std::string name, BlinkStickPtr blinkstick, int index, uint8_t red, uint8_t green, uint8_t blue)
-  : mName(name), mBlinkstick(blinkstick), mIndex(index), mRed(red), mGreen(green), mBlue(blue)
-{
+  if (!mColor)
+  {
+    mColor = RGBColor::getFriendlyColor("red");
+  }
 }
 
 LEDBinding::~LEDBinding()
@@ -43,18 +46,19 @@ LEDBinding::~LEDBinding()
 
 void LEDBinding::registerUserSpaceLED()
 {
-  strncpy(mUledsUserDevStruct.name, mName.c_str(), LED_MAX_NAME_SIZE);
-  mUledsUserDevStruct.max_brightness = 100;
+  struct uleds_user_dev dev;
+  strncpy(dev.name, mName.c_str(), LED_MAX_NAME_SIZE);
+  dev.max_brightness = 100;
 
   mULedsFileDescriptor = open("/dev/uleds", O_RDWR);
 
   // TODO: Error handling
   //if (mULedsFile == NULL)
   //{
-    // insert error condition here
+  // insert error condition here
   //}
 
-  write(mULedsFileDescriptor, &mUledsUserDevStruct, sizeof(mUledsUserDevStruct));
+  write(mULedsFileDescriptor, &dev, sizeof(dev));
 }
 
 struct pollfd LEDBinding::getPollFd()
@@ -72,6 +76,30 @@ int LEDBinding::getBrightness()
   read(mULedsFileDescriptor, &returnVal, sizeof(returnVal));
 
   return returnVal;
+}
+
+bool LEDBinding::setOn()
+{
+  mBlinkstick->setColor(mIndex, mColor);
+}
+
+bool LEDBinding::setOff()
+{
+  mBlinkstick->setOff(mIndex);
+}
+
+bool LEDBinding::processBrightnessChange()
+{
+  int brightness = getBrightness();
+
+  if (brightness)
+  {
+    return setOn();
+  }
+  else
+  {
+    return setOff();
+  }
 }
 
 std::string LEDBinding::getName()

@@ -20,8 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
+#include <blinkstick_userspace_led_daemon/RGBColor.hpp>
 
-#include <iostream>
+#include <unistd.h>
 
 using namespace BlinkstickUserspace;
 
@@ -29,15 +30,41 @@ int main()
 {
   BlinkStickVectorPtr blinkSticks = BlinkStick::find_all();
 
-  std::cout << "We found " << blinkSticks->size() << " blinkstick(s)" << std::endl;
-
+  printf("We found %ld blinkstick(s)\n", blinkSticks->size());
   int count = 0;
-  for (BlinkStickVector::iterator i = blinkSticks->begin(); i != blinkSticks->end(); i++)
+  for (BlinkStickPtr blinkStick : *blinkSticks)
   {
-    std::cout << "Blinkstick " << ++count << std::endl;
-    BlinkStickPtr blinkStick = *i;
-    std::cout << blinkStick->toString();
-    std::cout << "  InfoBlock1: " << blinkStick->getInfoBlock(1) << std::endl;
-  }
+    printf("Blinkstick %d\n", ++count);
+    printf("%s\n", blinkStick->toString().c_str());
+    printf("  InfoBlock1: %s\n", blinkStick->getInfoBlock(1).c_str());
 
+    blinkStick->setManyOff(8);
+
+    RGBColorVectorPtr setColors = RGBColorVectorPtr(new RGBColorVector());
+    setColors->push_back(RGBColor::getFriendlyColor("aqua"));
+    setColors->push_back(RGBColor::getFriendlyColor("lime"));
+    setColors->push_back(RGBColor::getFriendlyColor("teal"));
+    setColors->push_back(RGBColor::getFriendlyColor("indigo"));
+    setColors->push_back(RGBColor::getFriendlyColor("mistyrose"));
+    setColors->push_back(RGBColor::getFriendlyColor("orange"));
+    setColors->push_back(RGBColor::getFriendlyColor("snow"));
+    blinkStick->setColors(7, setColors);
+
+    RGBColorVectorPtr colors = blinkStick->getColors();
+    printf("Colors: ");
+    for (RGBColorPtr color : *colors)
+    {
+      printf("%s ", color->toString().c_str());
+    }
+    printf("\n");
+
+    blinkStick->setManyOff(8);
+
+    blinkStick->setColor(0, RGBColor::getFriendlyColor("aqua"));
+    blinkStick->setColor(4, RGBColor::getFriendlyColor("mistyrose"));
+    printf("%s\n", blinkStick->getColor(0)->toString().c_str());
+    printf("%s\n", blinkStick->getColor(4)->toString().c_str());
+
+    blinkStick->setManyOff(8);
+  }
 }

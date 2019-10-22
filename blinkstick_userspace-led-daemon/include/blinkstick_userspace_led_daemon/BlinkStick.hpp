@@ -29,32 +29,54 @@ namespace BlinkstickUserspace
 {
 class BlinkStick
 {
-  public:
-    BlinkStick(hid_device* device);
-    ~BlinkStick();
+public:
+  BlinkStick(hid_device *device);
+  ~BlinkStick();
 
-    static BlinkStickPtr find();
-    static BlinkStickVectorPtr find_all();
+  static BlinkStickPtr find();
+  static BlinkStickVectorPtr find_all();
 
-    std::string getInfoBlock(int id);
-    void getColors();
+  std::string getManufacturer();
+  std::string getProduct();
+  std::string getSerialNumber();
+  std::string getInfoBlock(int id);
 
-    std::string toString();
+  RGBColorPtr getColor();
+  RGBColorPtr getColor(uint8_t index);
+  RGBColorVectorPtr getColors(uint8_t led_count = 8);
 
-  private:
-    static int const VENDOR_ID = 0x20a0;
-    static int const PRODUCT_ID = 0x41e5;
+  bool setColor(RGBColorPtr color);
+  bool setColor(uint8_t index, RGBColorPtr color);
+  bool setColors(uint8_t led_count, RGBColorVectorPtr colors);
 
-    static int const COLORS = 0x1;
-    static int const INFO_BLOCK_1 = 0x2;
-    static int const INFO_BLOCK_2 = 0x3;
-    static int const MODE = 0x4;
+  bool setOff();
+  bool setOff(uint8_t index);
+  bool setManyOff(uint8_t led_count = 8);
 
-    std::string mManufacturer;
-    std::string mProduct;
-    std::string mSerialNumber;
+  std::string toString();
 
-    hid_device* mDevice;
+private:
+  static const int VENDOR_ID = 0x20a0;
+  static const int PRODUCT_ID = 0x41e5;
+
+  static const uint8_t FIRST_LED_COLOR = 0x1;
+  static const uint8_t INFO_BLOCK_1 = 0x2;
+  static const uint8_t INFO_BLOCK_2 = 0x3;
+  static const uint8_t MODE = 0x4;
+  static const uint8_t OTHER_LED_COLOR = 0x5;
+  static const uint8_t EIGHT_LED_REPORT = 0x6;
+  static const uint8_t SIXTEEN_LED_REPORT = 0x7;
+  static const uint8_t THIRTY_TWO_LED_REPORT = 0x8;
+  static const uint8_t SIXTY_FOUR_LED_REPORT = 0x9;
+
+  static const int COMMUNICATION_RETRY_ATTEMPS = 10;
+
+  typedef std::tuple<unsigned char, int> color_report_data;
+  color_report_data getReportData(uint8_t led_count);
+  int sendFeatureReportWithRetry(unsigned char *data, size_t size);
+  int getFeatureReportWithRetry(unsigned char *data, size_t size);
+
+  hid_device *mDevice;
 };
 
 } // namespace BlinkstickUserspace
