@@ -32,6 +32,7 @@ BlinkStick::BlinkStick(hid_device *device)
 
 BlinkStick::~BlinkStick()
 {
+  hid_close(mDevice);
 }
 
 BlinkStickPtr BlinkStick::find()
@@ -49,22 +50,34 @@ BlinkStickVectorPtr BlinkStick::find_all()
 {
   BlinkStickVectorPtr blinkSticks = BlinkStickVectorPtr(new BlinkStickVector());
 
-  struct hid_device_info *device_info = hid_enumerate(VENDOR_ID, PRODUCT_ID);
-  if (!device_info)
+  struct hid_device_info *device_info_base = hid_enumerate(VENDOR_ID, PRODUCT_ID);
+  if (!device_info_base)
   {
     return blinkSticks;
   }
 
-  BlinkStickPtr blinkStick = BlinkStickPtr(new BlinkStick(hid_open_path(device_info->path)));
-  blinkSticks->push_back(blinkStick);
+  struct hid_device_info *device_info = device_info_base;
+
+  open_hid_and_store(blinkSticks, device_info->path);
 
   while (device_info = device_info->next)
   {
-    blinkStick = BlinkStickPtr(new BlinkStick(hid_open_path(device_info->path)));
-    blinkSticks->push_back(blinkStick);
+    open_hid_and_store(blinkSticks, device_info->path);
   }
 
+  hid_free_enumeration(device_info_base);
+
   return blinkSticks;
+}
+
+void BlinkStick::open_hid_and_store(BlinkStickVectorPtr blinkSticks, char* path)
+{
+  hid_device *hidDevice = hid_open_path(path);
+
+  if (hidDevice)
+  {
+    blinkSticks->push_back(BlinkStickPtr(new BlinkStick(hidDevice)));
+  }
 }
 
 std::string BlinkStick::getManufacturer()

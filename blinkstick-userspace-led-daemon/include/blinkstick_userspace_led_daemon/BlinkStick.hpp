@@ -71,6 +71,8 @@ private:
 
   static const int COMMUNICATION_RETRY_ATTEMPS = 10;
 
+  static void open_hid_and_store(BlinkStickVectorPtr, char* path);
+
   typedef std::tuple<unsigned char, int> color_report_data;
   color_report_data getReportData(uint8_t led_count);
   int sendFeatureReportWithRetry(unsigned char *data, size_t size);
