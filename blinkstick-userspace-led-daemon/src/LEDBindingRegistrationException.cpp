@@ -27,6 +27,7 @@ using namespace BlinkstickUserspace;
 LEDBindingRegistrationException::LEDBindingRegistrationException(int error, std::string message) noexcept
   : mErrorNo(error), mMessage(message)
 {
+  mCombinedMessage = std::string(mMessage).append(", errno: ").append(std::to_string(mErrorNo));
 }
 
 LEDBindingRegistrationException::~LEDBindingRegistrationException()
@@ -45,8 +46,5 @@ int LEDBindingRegistrationException::getErrorNo() const noexcept
 
 const char* LEDBindingRegistrationException::what() const noexcept
 {
-  std::string message = getMessage();
-  message.append(", errno: ").append(std::to_string(mErrorNo));
-
-  return message.c_str();
+  return mCombinedMessage.c_str();
 }

@@ -41,5 +41,6 @@ public:
 private:
   int mErrorNo;
   std::string mMessage;
+  std::string mCombinedMessage;
 };
 } // namespace BlinkstickUserspace
