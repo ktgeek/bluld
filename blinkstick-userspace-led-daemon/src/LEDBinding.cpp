@@ -33,7 +33,7 @@
 
 using namespace BlinkstickUserspace;
 
-LEDBinding::LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color) throw()
+LEDBinding::LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color)
     : mName(name), mBlinkstick(blinkstick), mIndex(index), mColor(color)
 {
   if (!mColor)
@@ -49,7 +49,7 @@ LEDBinding::~LEDBinding()
   close(mULedsFileDescriptor);
 }
 
-void LEDBinding::registerUserSpaceLED() throw()
+void LEDBinding::registerUserSpaceLED()
 {
   struct uleds_user_dev dev;
   strncpy(dev.name, mName.c_str(), LED_MAX_NAME_SIZE);

@@ -33,7 +33,7 @@ namespace BlinkstickUserspace
 class LEDBinding
 {
 public:
-  LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color = NULL) throw();
+  LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color = NULL);
   ~LEDBinding();
 
   struct pollfd getPollFd();
@@ -48,7 +48,7 @@ public:
   std::string getName();
 
 private:
-  void registerUserSpaceLED() throw();
+  void registerUserSpaceLED();
 
   std::string mName;
   BlinkStickPtr mBlinkstick;
