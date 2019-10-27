@@ -62,7 +62,11 @@ void LEDBinding::registerUserSpaceLED()
     throw LEDBindingRegistrationException(errno, "Unable to open /dev/uleds");
   }
 
-  write(mULedsFileDescriptor, &dev, sizeof(dev));
+  const ssize_t written = write(mULedsFileDescriptor, &dev, sizeof(dev));
+  if (written == -1)
+  {
+    throw LEDBindingRegistrationException(errno, "Unable to open /dev/uleds");
+  }
 }
 
 struct pollfd LEDBinding::getPollFd()
@@ -77,7 +81,13 @@ struct pollfd LEDBinding::getPollFd()
 int LEDBinding::getBrightness()
 {
   int returnVal;
-  read(mULedsFileDescriptor, &returnVal, sizeof(returnVal));
+  const ssize_t dataRead = read(mULedsFileDescriptor, &returnVal, sizeof(returnVal));
+
+  // TODO: throw an exception in this case
+  if (dataRead < 1)
+  {
+    return 0;
+  }
 
   return returnVal;
 }
