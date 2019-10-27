@@ -19,57 +19,34 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#include <iostream>
 
-#include <blinkstick_userspace_led_daemon/LEDBinding.hpp>
 #include <blinkstick_userspace_led_daemon/LEDBindingRegistrationException.hpp>
-#include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
 
 using namespace BlinkstickUserspace;
 
-int main()
+LEDBindingRegistrationException::LEDBindingRegistrationException(int error, std::string message) noexcept
+  : mErrorNo(error), mMessage(message)
 {
-  hid_init();
+}
 
-  BlinkStickPtr blinkstick = BlinkStick::find();
+LEDBindingRegistrationException::~LEDBindingRegistrationException()
+{
+}
 
-  LEDBindingVector ledBindings;
-  for (int i = 0; i < 8; i++)
-  {
-    std::string ledName("blinkstick::");
-    ledName.append(std::to_string(i));
-    try
-    {
-      LEDBindingPtr ledBinding = LEDBindingPtr(new LEDBinding(ledName, blinkstick, i));
-      ledBindings.push_back(ledBinding);
-    }
-    catch (LEDBindingRegistrationException &e)
-    {
-      std::cerr << e.getMessage() << ", errno: " << e.getErrorNo() << std::endl;
-    }
-  }
+std::string LEDBindingRegistrationException::getMessage() const noexcept
+{
+  return mMessage;
+}
 
-  const size_t bindingsCount = ledBindings.size();
-  struct pollfd fds[bindingsCount];
+int LEDBindingRegistrationException::getErrorNo() const noexcept
+{
+  return mErrorNo;
+}
 
-  for (unsigned int i = 0; i < bindingsCount; i++)
-  {
-    fds[i] = ledBindings[i]->getPollFd();
-  }
+const char* LEDBindingRegistrationException::what() const noexcept
+{
+  std::string message = getMessage();
+  message.append(", errno: ").append(std::to_string(mErrorNo));
 
-  while (1)
-  {
-    int events = poll(fds, bindingsCount, -1);
-
-    if (events > 0)
-    {
-      for (unsigned int i = 0; i < bindingsCount; i++)
-      {
-        if (fds[i].revents && POLLIN)
-        {
-          ledBindings[i]->processBrightnessChange();
-        }
-      }
-    }
-  }
+  return message.c_str();
 }

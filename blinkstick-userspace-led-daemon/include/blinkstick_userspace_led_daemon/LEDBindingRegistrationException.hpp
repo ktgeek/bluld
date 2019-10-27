@@ -1,4 +1,3 @@
-
 // MIT License
 //
 // Copyright (c) 2019 Keith T. Garner
@@ -22,38 +21,25 @@
 // SOFTWARE.
 #pragma once
 
-#include <cstdint>
-#include <linux/uleds.h>
-#include <poll.h>
-
-#include <blinkstick_userspace_led_daemon/blinkstick_userspace_led_daemon_fwd.hpp>
+#include <string>
+#include <exception>
 
 namespace BlinkstickUserspace
 {
-class LEDBinding
+class LEDBindingRegistrationException : public std::exception
 {
 public:
-  LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color = NULL) throw();
-  ~LEDBinding();
+  LEDBindingRegistrationException(int error, std::string message) noexcept;
 
-  struct pollfd getPollFd();
+  virtual ~LEDBindingRegistrationException();
 
-  int getBrightness();
+  std::string getMessage() const noexcept;
+  int getErrorNo() const noexcept;
 
-  bool setOn();
-  bool setOff();
-
-  bool processBrightnessChange();
-
-  std::string getName();
+  virtual const char* what() const noexcept;
 
 private:
-  void registerUserSpaceLED() throw();
-
-  std::string mName;
-  BlinkStickPtr mBlinkstick;
-  uint8_t mIndex;
-  RGBColorPtr mColor;
-  int mULedsFileDescriptor;
+  int mErrorNo;
+  std::string mMessage;
 };
 } // namespace BlinkstickUserspace

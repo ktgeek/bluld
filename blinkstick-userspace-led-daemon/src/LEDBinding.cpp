@@ -23,20 +23,25 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <poll.h>
+#include <errno.h>
+#include <iostream>
 
 #include <blinkstick_userspace_led_daemon/LEDBinding.hpp>
 #include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
 #include <blinkstick_userspace_led_daemon/RGBColor.hpp>
+#include <blinkstick_userspace_led_daemon/LEDBindingRegistrationException.hpp>
 
 using namespace BlinkstickUserspace;
 
-LEDBinding::LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color)
+LEDBinding::LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color) throw()
     : mName(name), mBlinkstick(blinkstick), mIndex(index), mColor(color)
 {
   if (!mColor)
   {
     mColor = RGBColor::getFriendlyColor("red");
   }
+
+  registerUserSpaceLED();
 }
 
 LEDBinding::~LEDBinding()
@@ -44,7 +49,7 @@ LEDBinding::~LEDBinding()
   close(mULedsFileDescriptor);
 }
 
-void LEDBinding::registerUserSpaceLED()
+void LEDBinding::registerUserSpaceLED() throw()
 {
   struct uleds_user_dev dev;
   strncpy(dev.name, mName.c_str(), LED_MAX_NAME_SIZE);
@@ -52,11 +57,10 @@ void LEDBinding::registerUserSpaceLED()
 
   mULedsFileDescriptor = open("/dev/uleds", O_RDWR);
 
-  // TODO: Error handling
-  //if (mULedsFile == NULL)
-  //{
-  // insert error condition here
-  //}
+  if (mULedsFileDescriptor == -1)
+  {
+    throw LEDBindingRegistrationException(errno, "Unable to open /dev/uleds");
+  }
 
   write(mULedsFileDescriptor, &dev, sizeof(dev));
 }
@@ -80,17 +84,17 @@ int LEDBinding::getBrightness()
 
 bool LEDBinding::setOn()
 {
-  mBlinkstick->setColor(mIndex, mColor);
+  return mBlinkstick->setColor(mIndex, mColor);
 }
 
 bool LEDBinding::setOff()
 {
-  mBlinkstick->setOff(mIndex);
+  return mBlinkstick->setOff(mIndex);
 }
 
 bool LEDBinding::processBrightnessChange()
 {
-  int brightness = getBrightness();
+  const int brightness = getBrightness();
 
   if (brightness)
   {
