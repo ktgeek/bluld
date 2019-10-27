@@ -60,7 +60,7 @@ BlinkStickVectorPtr BlinkStick::find_all()
 
   open_hid_and_store(blinkSticks, device_info->path);
 
-  while (device_info = device_info->next)
+  while ((device_info = device_info->next))
   {
     open_hid_and_store(blinkSticks, device_info->path);
   }
@@ -199,6 +199,11 @@ RGBColorVectorPtr BlinkStick::getColors(uint8_t led_count)
   data[0] = report_id;
 
   const int read = getFeatureReportWithRetry(data, sizeof(data));
+
+  if (read < 0)
+  {
+    return colors;
+  }
 
   for (int i = 2; i <= led_count * 3; i = i + 3)
   {
