@@ -74,9 +74,10 @@ private:
   static void open_hid_and_store(BlinkStickVectorPtr, char* path);
 
   typedef std::tuple<unsigned char, int> color_report_data;
-  color_report_data getReportData(uint8_t led_count);
-  int sendFeatureReportWithRetry(unsigned char *data, size_t size);
-  int getFeatureReportWithRetry(unsigned char *data, size_t size);
+  color_report_data getReportData(uint8_t led_count) throw();
+
+  int sendFeatureReportWithRetry(unsigned char *data, size_t size) throw();
+  int getFeatureReportWithRetry(unsigned char *data, size_t size) throw();
 
   hid_device *mDevice;
 };

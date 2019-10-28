@@ -354,7 +354,7 @@ std::string BlinkStick::toString()
   return result;
 }
 
-BlinkStick::color_report_data BlinkStick::getReportData(uint8_t led_count)
+BlinkStick::color_report_data BlinkStick::getReportData(uint8_t led_count) throw()
 {
   unsigned char report_id = SIXTY_FOUR_LED_REPORT;
   int max_leds = 64;
@@ -381,7 +381,7 @@ BlinkStick::color_report_data BlinkStick::getReportData(uint8_t led_count)
 }
 
 // Back to back quick communication seems to fail sometimes, let's try up to 10 times;
-int BlinkStick::sendFeatureReportWithRetry(unsigned char *data, size_t size)
+int BlinkStick::sendFeatureReportWithRetry(unsigned char *data, size_t size) throw()
 {
   int result = -1;
   for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
@@ -392,7 +392,7 @@ int BlinkStick::sendFeatureReportWithRetry(unsigned char *data, size_t size)
 }
 
 // Back to back quick communication seems to fail, let's do a retry.
-int BlinkStick::getFeatureReportWithRetry(unsigned char *data, size_t size)
+int BlinkStick::getFeatureReportWithRetry(unsigned char *data, size_t size) throw()
 {
   int result = -1;
   for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
