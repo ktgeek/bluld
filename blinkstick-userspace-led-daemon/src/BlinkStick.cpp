@@ -40,7 +40,7 @@ BlinkStickPtr BlinkStick::find()
   BlinkStickVectorPtr blinkSticks = find_all();
   if (blinkSticks->size() < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return blinkSticks->front();
@@ -159,7 +159,7 @@ RGBColorPtr BlinkStick::getColor()
   if (result == -1)
   {
     // couldn't read from the stick
-    return NULL;
+    return nullptr;
   }
 
   return RGBColorPtr(new RGBColor(data[1], data[2], data[3]));

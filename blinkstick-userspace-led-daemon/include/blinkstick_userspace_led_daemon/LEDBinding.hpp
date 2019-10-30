@@ -33,7 +33,7 @@ namespace BlinkstickUserspace
 class LEDBinding
 {
 public:
-  LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color = NULL);
+  LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color = nullptr);
   ~LEDBinding();
 
   struct pollfd getPollFd();
