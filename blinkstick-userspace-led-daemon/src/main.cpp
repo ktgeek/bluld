@@ -74,6 +74,8 @@ LEDBindingVectorPtr init_led_bindings(const size_t led_count, const StringVector
     }
   }
 
+  RGBColor::releaseFriendlyColors();
+
   return ledBindings;
 }
 

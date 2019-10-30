@@ -45,11 +45,13 @@ public:
 
   std::string toString() noexcept;
 
+  static void releaseFriendlyColors() noexcept;
+
 private:
   uint8_t mRed;
   uint8_t mGreen;
   uint8_t mBlue;
 
-  static const std::map<std::string, RGBColorPtr> sFriendlyColors;
+  static std::unique_ptr<std::map<std::string, RGBColorPtr>> sFriendlyColors;
 };
 } // namespace BlinkstickUserspace

@@ -25,7 +25,12 @@
 
 using namespace BlinkstickUserspace;
 
-const std::map<std::string, RGBColorPtr> RGBColor::sFriendlyColors = {
+// These are just to make the declaration on the next line more readable
+typedef std::map<std::string, RGBColorPtr> FriendlyColorMap;
+typedef std::unique_ptr<FriendlyColorMap> FriendlyColorMapPtr;
+
+FriendlyColorMapPtr RGBColor::sFriendlyColors = FriendlyColorMapPtr(new FriendlyColorMap(
+  {
     {"aqua", RGBColorPtr(new RGBColor(0x00, 0xff, 0xff))},
     {"aliceblue", RGBColorPtr(new RGBColor(0xf0, 0xf8, 0xff))},
     {"antiquewhite", RGBColorPtr(new RGBColor(0xfa, 0xeb, 0xd7))},
@@ -166,7 +171,9 @@ const std::map<std::string, RGBColorPtr> RGBColor::sFriendlyColors = {
     {"tomato", RGBColorPtr(new RGBColor(0xff, 0x63, 0x47))},
     {"white", RGBColorPtr(new RGBColor(0xff, 0xff, 0xff))},
     {"yellow", RGBColorPtr(new RGBColor(0xff, 0xff, 0x00))},
-    {"warmwhite", RGBColorPtr(new RGBColor(0xfd, 0xf5, 0xe6))}};
+    {"warmwhite", RGBColorPtr(new RGBColor(0xfd, 0xf5, 0xe6))}
+  }
+));
 
 RGBColor::RGBColor() noexcept
     : mRed(0), mGreen(0), mBlue(0)
@@ -180,7 +187,7 @@ RGBColor::RGBColor(uint8_t red, uint8_t green, uint8_t blue) noexcept
 
 RGBColorPtr RGBColor::getFriendlyColor(std::string name)
 {
-  return sFriendlyColors.at(name);
+  return sFriendlyColors->at(name);
 }
 
 RGBTuple RGBColor::getValues() noexcept
@@ -193,4 +200,9 @@ std::string RGBColor::toString() noexcept
   char hex[7];
   snprintf(hex, 7, "%02x%02x%02x", mRed, mGreen, mBlue);
   return std::string(std::begin(hex), std::end(hex) - 1);
+}
+
+void RGBColor::releaseFriendlyColors() noexcept
+{
+  sFriendlyColors.reset(nullptr);
 }
