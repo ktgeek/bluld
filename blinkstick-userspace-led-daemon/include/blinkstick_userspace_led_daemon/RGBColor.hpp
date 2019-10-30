@@ -35,15 +35,15 @@ typedef std::tuple<uint8_t, uint8_t, uint8_t> RGBTuple;
 class RGBColor
 {
 public:
-  RGBColor() throw();
+  RGBColor() noexcept;
 
-  RGBColor(uint8_t red, uint8_t green, uint8_t blue) throw();
+  RGBColor(uint8_t red, uint8_t green, uint8_t blue) noexcept;
 
-  RGBTuple getValues() throw();
+  RGBTuple getValues() noexcept;
 
   static RGBColorPtr getFriendlyColor(std::string name);
 
-  std::string toString() throw();
+  std::string toString() noexcept;
 
 private:
   uint8_t mRed;

@@ -168,12 +168,12 @@ const std::map<std::string, RGBColorPtr> RGBColor::sFriendlyColors = {
     {"yellow", RGBColorPtr(new RGBColor(0xff, 0xff, 0x00))},
     {"warmwhite", RGBColorPtr(new RGBColor(0xfd, 0xf5, 0xe6))}};
 
-RGBColor::RGBColor() throw()
+RGBColor::RGBColor() noexcept
     : mRed(0), mGreen(0), mBlue(0)
 {
 }
 
-RGBColor::RGBColor(uint8_t red, uint8_t green, uint8_t blue) throw()
+RGBColor::RGBColor(uint8_t red, uint8_t green, uint8_t blue) noexcept
     : mRed(red), mGreen(green), mBlue(blue)
 {
 }
@@ -183,12 +183,12 @@ RGBColorPtr RGBColor::getFriendlyColor(std::string name)
   return sFriendlyColors.at(name);
 }
 
-RGBTuple RGBColor::getValues() throw()
+RGBTuple RGBColor::getValues() noexcept
 {
   return std::make_tuple(mRed, mGreen, mBlue);
 }
 
-std::string RGBColor::toString() throw()
+std::string RGBColor::toString() noexcept
 {
   char hex[7];
   snprintf(hex, 7, "%02x%02x%02x", mRed, mGreen, mBlue);
