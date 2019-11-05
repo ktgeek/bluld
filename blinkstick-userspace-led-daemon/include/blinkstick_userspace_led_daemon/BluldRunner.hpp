@@ -30,11 +30,11 @@
 
 namespace BlinkstickUserspace
 {
-class BlubdRunner
+class BluldRunner
 {
   public:
-    BlubdRunner() noexcept;
-    ~BlubdRunner() noexcept;
+    BluldRunner() noexcept;
+    ~BluldRunner() noexcept;
 
     void init(int argc, char** argv);
     void run();

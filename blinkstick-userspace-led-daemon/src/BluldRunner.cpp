@@ -25,7 +25,7 @@
 
 #include <hidapi/hidapi.h>
 
-#include <blinkstick_userspace_led_daemon/BlubdRunner.hpp>
+#include <blinkstick_userspace_led_daemon/BluldRunner.hpp>
 #include <blinkstick_userspace_led_daemon/RGBColor.hpp>
 #include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
 #include <blinkstick_userspace_led_daemon/LEDBinding.hpp>
@@ -36,18 +36,18 @@ typedef std::shared_ptr<StringVector> StringVectorPtr;
 
 using namespace BlinkstickUserspace;
 
-BlubdRunner::BlubdRunner() noexcept
+BluldRunner::BluldRunner() noexcept
     : mLEDBindings(nullptr)
 {
 }
 
-BlubdRunner::~BlubdRunner() noexcept
+BluldRunner::~BluldRunner() noexcept
 {
   mLEDBindings = nullptr;
   hid_exit();
 }
 
-void BlubdRunner::signal_handler(int sig)
+void BluldRunner::signal_handler(int sig)
 {
   if (sig == SIGINT || sig == SIGTERM)
   {
@@ -55,7 +55,7 @@ void BlubdRunner::signal_handler(int sig)
   }
 }
 
-std::tuple<size_t, StringVectorPtr> BlubdRunner::parse_args(int argc, char **argv)
+std::tuple<size_t, StringVectorPtr> BluldRunner::parse_args(int argc, char **argv)
 {
   size_t led_count;
   if (argc < 2)
@@ -79,7 +79,7 @@ std::tuple<size_t, StringVectorPtr> BlubdRunner::parse_args(int argc, char **arg
   return std::tuple<size_t, StringVectorPtr>(led_count, colorList);
 }
 
-void BlubdRunner::init_led_bindings(const size_t led_count, const StringVectorPtr color_list, BlinkStickPtr blinkstick)
+void BluldRunner::init_led_bindings(const size_t led_count, const StringVectorPtr color_list, BlinkStickPtr blinkstick)
 {
   mLEDBindings = LEDBindingVectorPtr(new LEDBindingVector());
 
@@ -116,7 +116,7 @@ void BlubdRunner::init_led_bindings(const size_t led_count, const StringVectorPt
   }
 }
 
-void BlubdRunner::init(int argc, char **argv)
+void BluldRunner::init(int argc, char **argv)
 {
   std::tuple<size_t, StringVectorPtr> args = parse_args(argc, argv);
 
@@ -134,7 +134,7 @@ void BlubdRunner::init(int argc, char **argv)
   RGBColor::releaseFriendlyColors();
 }
 
-void BlubdRunner::run()
+void BluldRunner::run()
 {
   const size_t bindingsCount = mLEDBindings->size();
 

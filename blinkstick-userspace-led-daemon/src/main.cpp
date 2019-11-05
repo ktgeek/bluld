@@ -20,21 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include <csignal>
-#include <blinkstick_userspace_led_daemon/BlubdRunner.hpp>
+#include <blinkstick_userspace_led_daemon/BluldRunner.hpp>
 
 using namespace BlinkstickUserspace;
 
-BlubdRunner runner;
+BluldRunner runner;
 
-void blubd_signal(int sig)
+void bluld_signal(int sig)
 {
   runner.signal_handler(sig);
 }
 
 int main(int argc, char **argv)
 {
-  std::signal(SIGINT, blubd_signal);
-  std::signal(SIGTERM, blubd_signal);
+  std::signal(SIGINT, bluld_signal);
+  std::signal(SIGTERM, bluld_signal);
 
   runner.init(argc, argv);
 
