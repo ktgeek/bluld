@@ -36,7 +36,7 @@ public:
   LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index, RGBColorPtr color = nullptr);
   ~LEDBinding();
 
-  struct pollfd getPollFd();
+  struct pollfd getPollFd() noexcept;
 
   int getBrightness();
 
@@ -45,7 +45,7 @@ public:
 
   bool processBrightnessChange();
 
-  std::string getName();
+  std::string getName() noexcept;
 
 private:
   void registerUserSpaceLED();

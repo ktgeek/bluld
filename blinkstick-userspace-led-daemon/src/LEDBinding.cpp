@@ -46,6 +46,7 @@ LEDBinding::LEDBinding(std::string name, BlinkStickPtr blinkstick, uint8_t index
 
 LEDBinding::~LEDBinding()
 {
+  setOff();
   close(mULedsFileDescriptor);
 }
 
@@ -69,7 +70,7 @@ void LEDBinding::registerUserSpaceLED()
   }
 }
 
-struct pollfd LEDBinding::getPollFd()
+struct pollfd LEDBinding::getPollFd() noexcept
 {
   struct pollfd fd;
   fd.fd = mULedsFileDescriptor;
@@ -116,7 +117,7 @@ bool LEDBinding::processBrightnessChange()
   }
 }
 
-std::string LEDBinding::getName()
+std::string LEDBinding::getName() noexcept
 {
   return mName;
 }
