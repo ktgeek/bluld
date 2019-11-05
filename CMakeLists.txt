@@ -17,6 +17,7 @@ add_executable(bluld
   blinkstick-userspace-led-daemon/src/LEDBinding.cpp
   blinkstick-userspace-led-daemon/src/LEDBindingRegistrationException.cpp
   blinkstick-userspace-led-daemon/src/RGBColor.cpp
+  blinkstick-userspace-led-daemon/src/BlubdRunner.cpp
   blinkstick-userspace-led-daemon/src/main.cpp
 )
 target_link_libraries(bluld ${HIDAPI_LIBRARIES})

@@ -40,4 +40,7 @@ class RGBColor;
 typedef std::shared_ptr<RGBColor> RGBColorPtr;
 typedef std::vector<RGBColorPtr> RGBColorVector;
 typedef std::shared_ptr<RGBColorVector> RGBColorVectorPtr;
+
+typedef std::vector<std::string> StringVector;
+typedef std::shared_ptr<StringVector> StringVectorPtr;
 } // namespace BlinkstickUserspace

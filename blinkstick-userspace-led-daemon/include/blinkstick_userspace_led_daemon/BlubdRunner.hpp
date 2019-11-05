@@ -19,24 +19,33 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#include <csignal>
-#include <blinkstick_userspace_led_daemon/BlubdRunner.hpp>
+#pragma once
 
-using namespace BlinkstickUserspace;
+#include <memory>
 
-BlubdRunner runner;
+#include <poll.h>
+#include <signal.h>
 
-void blubd_signal(int sig)
+#include <blinkstick_userspace_led_daemon/blinkstick_userspace_led_daemon_fwd.hpp>
+
+namespace BlinkstickUserspace
 {
-  runner.signal_handler(sig);
-}
-
-int main(int argc, char **argv)
+class BlubdRunner
 {
-  std::signal(SIGINT, blubd_signal);
-  std::signal(SIGTERM, blubd_signal);
+  public:
+    BlubdRunner() noexcept;
+    ~BlubdRunner() noexcept;
 
-  runner.init(argc, argv);
+    void init(int argc, char** argv);
+    void run();
+    // void run2();
+    void signal_handler(int sig);
 
-  runner.run();
-}
+  private:
+    std::tuple<size_t, StringVectorPtr> parse_args(int argc, char **argv);
+    void init_led_bindings(const size_t led_count, const StringVectorPtr color_list, BlinkStickPtr blinkstick);
+
+    LEDBindingVectorPtr mLEDBindings;
+    bool mKeepRunning;
+};
+} // namespace BlinkstickUserspace
