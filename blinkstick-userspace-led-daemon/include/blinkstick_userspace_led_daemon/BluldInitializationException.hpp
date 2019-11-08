@@ -19,42 +19,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#include <csignal>
-#include <iostream>
-#include <blinkstick_userspace_led_daemon/BluldRunner.hpp>
+#pragma once
 
-using namespace BlinkstickUserspace;
+#include <stdexcept>
 
-BluldRunner runner;
-
-void bluld_signal(int sig)
+namespace BlinkstickUserspace
 {
-  runner.signal_handler(sig);
-}
-
-void print_exception(const std::exception& e, int level =  0)
+class BluldInitializationException : public std::runtime_error
 {
-    std::cerr << std::string(level, ' ') << "exception: " << e.what() << '\n';
-    try {
-        std::rethrow_if_nested(e);
-    } catch(const std::exception& e) {
-        print_exception(e, level+1);
-    } catch(...) {}
-}
-
-int main(int argc, char **argv)
-{
-  std::signal(SIGINT, bluld_signal);
-  std::signal(SIGTERM, bluld_signal);
-
-  try
-  {
-    runner.init(argc, argv);
-
-    runner.run();
-  }
-  catch(const std::exception& e) {
-    print_exception(e);
-    exit(EXIT_FAILURE);
-  }
-}
+public:
+  BluldInitializationException(const std::string &what_arg);
+  BluldInitializationException(const char *what_arg);
+};
+} // namespace BlinkstickUserspace

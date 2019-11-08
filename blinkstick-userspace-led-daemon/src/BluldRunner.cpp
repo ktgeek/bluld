@@ -30,6 +30,7 @@
 #include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
 #include <blinkstick_userspace_led_daemon/LEDBinding.hpp>
 #include <blinkstick_userspace_led_daemon/LEDBindingRegistrationException.hpp>
+#include <blinkstick_userspace_led_daemon/BluldInitializationException.hpp>
 
 typedef std::vector<std::string> StringVector;
 typedef std::shared_ptr<StringVector> StringVectorPtr;
@@ -108,10 +109,9 @@ void BluldRunner::init_led_bindings(const size_t led_count, const StringVectorPt
       LEDBindingPtr ledBinding = LEDBindingPtr(binding);
       mLEDBindings->push_back(ledBinding);
     }
-    catch (LEDBindingRegistrationException &_e)
+    catch (LEDBindingRegistrationException &e)
     {
-      // Right now we swallow the exception, so we just don't have a LED binding in that case.  We should probably do
-      // something smarter as I suspect this will be an all or nothing issue.
+      std::throw_with_nested(BluldInitializationException("Unable to initizlize LED "));
     }
   }
 }
@@ -125,8 +125,7 @@ void BluldRunner::init(int argc, char **argv)
   BlinkStickPtr blinkstick = BlinkStick::find();
   if (!blinkstick)
   {
-    // TODO: throw initialization exception
-    exit(2);
+    throw BluldInitializationException("Unable to locate blinkstick");
   }
 
   init_led_bindings(std::get<0>(args), std::get<1>(args), blinkstick);
