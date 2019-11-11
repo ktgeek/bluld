@@ -21,7 +21,6 @@
 // SOFTWARE.
 #include <unistd.h>
 #include <poll.h>
-//#include <sys/epoll.h>
 
 #include <hidapi/hidapi.h>
 
@@ -101,7 +100,6 @@ void BluldRunner::init_led_bindings(const size_t led_count, const StringVectorPt
     }
 
     ledName.append(colorName).append(":").append(std::to_string(i));
-    ;
 
     try
     {
@@ -111,7 +109,7 @@ void BluldRunner::init_led_bindings(const size_t led_count, const StringVectorPt
     }
     catch (LEDBindingRegistrationException &e)
     {
-      std::throw_with_nested(BluldInitializationException("Unable to initizlize LED "));
+      std::throw_with_nested(BluldInitializationException("Unable to initialize LED"));
     }
   }
 }
@@ -164,7 +162,5 @@ void BluldRunner::run()
       }
     }
   }
-
-  close(fds[bindingsCount].fd);
 }
 
