@@ -28,7 +28,7 @@ namespace BlinkstickUserspace
 class BluldInitializationException : public std::runtime_error
 {
 public:
-  BluldInitializationException(const std::string &what_arg);
-  BluldInitializationException(const char *what_arg);
+  explicit BluldInitializationException(const std::string &what_arg) noexcept;
+  explicit BluldInitializationException(const char *what_arg) noexcept;
 };
 } // namespace BlinkstickUserspace

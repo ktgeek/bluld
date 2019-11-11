@@ -24,12 +24,12 @@
 
 using namespace BlinkstickUserspace;
 
-BluldInitializationException::BluldInitializationException(const std::string &what_arg)
+BluldInitializationException::BluldInitializationException(const std::string &what_arg) noexcept
     : runtime_error(what_arg)
 {
 }
 
-BluldInitializationException::BluldInitializationException(const char *what_arg)
+BluldInitializationException::BluldInitializationException(const char *what_arg) noexcept
     : runtime_error(what_arg)
 {
 }
