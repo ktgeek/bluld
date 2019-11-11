@@ -17,6 +17,7 @@ add_executable(bluld
   blinkstick-userspace-led-daemon/src/LEDBinding.cpp
   blinkstick-userspace-led-daemon/src/LEDBindingRegistrationException.cpp
   blinkstick-userspace-led-daemon/src/BluldInitializationException.cpp
+  blinkstick-userspace-led-daemon/src/BlinkStickCommunicationException.cpp
   blinkstick-userspace-led-daemon/src/RGBColor.cpp
   blinkstick-userspace-led-daemon/src/BluldRunner.cpp
   blinkstick-userspace-led-daemon/src/main.cpp

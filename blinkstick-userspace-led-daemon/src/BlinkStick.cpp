@@ -22,6 +22,7 @@
 
 #include <blinkstick_userspace_led_daemon/RGBColor.hpp>
 #include <blinkstick_userspace_led_daemon/BlinkStick.hpp>
+#include <blinkstick_userspace_led_daemon/BlinkStickCommunicationException.hpp>
 
 using namespace BlinkstickUserspace;
 
@@ -84,15 +85,11 @@ std::string BlinkStick::getManufacturer()
 {
   wchar_t tmpstring[255];
 
-  int result = -1;
-  for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
-  {
-    result = hid_get_manufacturer_string(mDevice, tmpstring, 255);
-  }
+  const int result = hid_get_manufacturer_string(mDevice, tmpstring, 255);
 
   if (result == -1)
   {
-    return "";
+    throw BlinkStickCommunicationException("Unable to retrieve Manufacturer");
   }
 
   return std::string(std::begin(tmpstring), std::end(tmpstring) - 1);
@@ -102,15 +99,11 @@ std::string BlinkStick::getProduct()
 {
   wchar_t tmpstring[255];
 
-  int result = -1;
-  for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
-  {
-    result = hid_get_product_string(mDevice, tmpstring, 255);
-  }
+  const int result = hid_get_product_string(mDevice, tmpstring, 255);
 
   if (result == -1)
   {
-    return "";
+    throw BlinkStickCommunicationException("Unable to retrieve Product");
   }
 
   return std::string(std::begin(tmpstring), std::end(tmpstring) - 1);
@@ -120,15 +113,11 @@ std::string BlinkStick::getSerialNumber()
 {
   wchar_t tmpstring[255];
 
-  int result = -1;
-  for (int attempt = 0; result < 0 && attempt < COMMUNICATION_RETRY_ATTEMPS; attempt++)
-  {
-    result = hid_get_serial_number_string(mDevice, tmpstring, 255);
-  }
+  const int result = hid_get_serial_number_string(mDevice, tmpstring, 255);
 
   if (result == -1)
   {
-    return "";
+    throw BlinkStickCommunicationException("Unable to get serial number");
   }
 
   return std::string(std::begin(tmpstring), std::end(tmpstring) - 1);
