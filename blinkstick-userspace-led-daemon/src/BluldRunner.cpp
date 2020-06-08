@@ -86,20 +86,18 @@ void BluldRunner::init_led_bindings(const size_t led_count, const StringVectorPt
   for (size_t i = 0; i < led_count; i++)
   {
     std::string ledName("blinkstick:");
+    ledName.append(std::to_string(i));
 
-    std::string colorName;
     RGBColorPtr color(nullptr);
     try
     {
-      colorName = color_list->at(i);
+      std::string colorName = color_list->at(i);
       color = RGBColor::getFriendlyColor(colorName);
     }
     catch (std::out_of_range &_e)
     {
-      colorName = "";
+      // No work to do, we'll just let it default
     }
-
-    ledName.append(colorName).append(":").append(std::to_string(i));
 
     try
     {
