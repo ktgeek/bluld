@@ -4,23 +4,23 @@ The [Blinkstick](https://www.blinkstick.com) family of products are "Smart LED c
 firmware." They register as USB HID devices so Linux doesn't recognize them as part of the LED class.  This daemon will
 use the Linux user space LED driver to bridge the gap.
 
-My intended use is to bring some "blinking lights" to x86-based router devices running [OpenWRT](https://openwrt.org),
+I use it to bring some "blinking lights" to x86-based router devices running [OpenWRT](https://openwrt.org),
 such as the [Protectli](https://protectli.com/6-port/), but it should be generic enough for any Linux machine.
 
 ## Using
 
 `bluld` makes the assumption that only one blinkstick device is connected. At launch time you must give it the number of
-LEDs on your Blinkstick as well as the colors you would like them to be.  (A list of friendly colors is at the bottom of
-this README.)
+LEDs on your Blinkstick as well as the colors you would like them to be. You can use friendly color names, or pass a hex
+value that MUST be prepented with `#`. (A list of friendly colors that bluld knows is at the bottom of this README.)
 
 Example:
 
 ```
-# bluld 4 aqua indigo olive yellow
+# bluld 5 aqua indigo olive yellow #010203
 ```
 
 When `bluld` is running, you should see an entry for each LED in `/sys/class/leds` named `blinkstick:<number>` where
-number is the number of the led as in `blinkstick:2`. From there, you can use the Blinkstick LEDs like any other registered LED.
+number is the number of the led, as in `blinkstick:2`. From there, you can use the Blinkstick LEDs like any other registered LED.
 
 ## Building
 

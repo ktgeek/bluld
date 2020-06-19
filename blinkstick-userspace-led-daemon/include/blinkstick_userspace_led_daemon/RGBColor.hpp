@@ -47,6 +47,8 @@ public:
 
   static void releaseFriendlyColors() noexcept;
 
+  static RGBColorPtr parseHexString(std::string hexString);
+
 private:
   uint8_t mRed;
   uint8_t mGreen;

@@ -92,7 +92,8 @@ void BluldRunner::init_led_bindings(const size_t led_count, const StringVectorPt
     try
     {
       std::string colorName = color_list->at(i);
-      color = RGBColor::getFriendlyColor(colorName);
+
+      color = colorName.front() == '#' ? RGBColor::parseHexString(colorName) : RGBColor::getFriendlyColor(colorName);
     }
     catch (std::out_of_range &_e)
     {

@@ -206,3 +206,12 @@ void RGBColor::releaseFriendlyColors() noexcept
 {
   sFriendlyColors.reset(nullptr);
 }
+
+RGBColorPtr RGBColor::parseHexString(std::string hexString)
+{
+  uint32_t all_colors;
+  all_colors = std::stoi(hexString.substr(1), nullptr, 16);
+  uint8_t *colors = (uint8_t*) &all_colors;
+
+  return RGBColorPtr(new RGBColor(colors[2], colors[1], colors[0]));
+}
