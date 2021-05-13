@@ -33,9 +33,12 @@
 
 tags
 tmp
+.vscode
 
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
 Makefile
+build
 bluld
+
