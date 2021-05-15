@@ -20,7 +20,8 @@ Example:
 ```
 
 When `bluld` is running, you should see an entry for each LED in `/sys/class/leds` named `blinkstick:<number>` where
-number is the number of the led, as in `blinkstick:2`. From there, you can use the Blinkstick LEDs like any other registered LED.
+number is the number of the led, as in `blinkstick:2`. From there, you can use the Blinkstick LEDs like any other
+registered LED.
 
 ## Building
 
