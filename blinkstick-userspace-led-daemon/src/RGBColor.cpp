@@ -1,7 +1,7 @@
 
 // MIT License
 //
-// Copyright (c) 2019 Keith T. Garner
+// Copyright (c) 2019-2020 Keith T. Garner
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
