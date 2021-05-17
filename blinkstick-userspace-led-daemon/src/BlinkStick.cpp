@@ -263,7 +263,10 @@ bool BlinkStick::setColors(uint8_t led_count, RGBColorVectorPtr colors)
   {
     int base = i * 3 + 2;
     RGBColorPtr color = colors->at(i);
-    std::tie(data[base + 1], data[base], data[base + 2]) = color->getValues();
+    if (color != nullptr)
+    {
+      std::tie(data[base + 1], data[base], data[base + 2]) = color->getValues();
+    }
   }
 
   const int result = sendFeatureReportWithRetry(data, sizeof(data));
