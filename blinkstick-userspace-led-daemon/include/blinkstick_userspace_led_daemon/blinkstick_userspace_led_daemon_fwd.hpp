@@ -43,4 +43,7 @@ typedef std::shared_ptr<RGBColorVector> RGBColorVectorPtr;
 
 typedef std::vector<std::string> StringVector;
 typedef std::shared_ptr<StringVector> StringVectorPtr;
+
+typedef std::vector<unsigned int> IntVector;
+typedef std::shared_ptr<IntVector> IntVectorPtr;
 } // namespace BlinkstickUserspace

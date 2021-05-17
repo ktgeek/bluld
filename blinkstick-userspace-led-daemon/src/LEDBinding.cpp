@@ -79,18 +79,17 @@ struct pollfd LEDBinding::getPollFd() noexcept
   return fd;
 }
 
-int LEDBinding::getBrightness()
+int LEDBinding::updateBrightness()
 {
-  int returnVal;
-  const ssize_t dataRead = read(mULedsFileDescriptor, &returnVal, sizeof(returnVal));
+  const ssize_t dataRead = read(mULedsFileDescriptor, &mBrightness, sizeof(mBrightness));
 
   // TODO: throw an exception in this case
   if (dataRead < 1)
   {
-    return 0;
+    mBrightness = 0;
   }
 
-  return returnVal;
+  return mBrightness;
 }
 
 bool LEDBinding::setOn()
@@ -105,9 +104,9 @@ bool LEDBinding::setOff()
 
 bool LEDBinding::processBrightnessChange()
 {
-  const int brightness = getBrightness();
+  updateBrightness();
 
-  if (brightness)
+  if (mBrightness)
   {
     return setOn();
   }
@@ -120,4 +119,19 @@ bool LEDBinding::processBrightnessChange()
 std::string LEDBinding::getName() noexcept
 {
   return mName;
+}
+
+void LEDBinding::bulkUpdate(LEDBindingVectorPtr bindings, IntVectorPtr changed_leds)
+{
+  for (unsigned int changed_led : *changed_leds) {
+    bindings->at(changed_led)->updateBrightness();
+  }
+
+  RGBColorVectorPtr colors = RGBColorVectorPtr(new RGBColorVector());
+  for (LEDBindingPtr binding : *bindings)
+  {
+    colors->push_back(binding->mBrightness ? binding->mColor : nullptr);
+  }
+
+  bindings->front()->mBlinkstick->setColors(bindings->size(), colors);
 }

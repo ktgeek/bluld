@@ -38,12 +38,16 @@ public:
 
   struct pollfd getPollFd() noexcept;
 
-  int getBrightness();
+  // updates the brightness value from the uled, stores it in this object, and returns the value
+  int updateBrightness();
 
   bool setOn();
   bool setOff();
 
   bool processBrightnessChange();
+
+  // This assumes all LED Bindings are from the same blinkstick. Weird stuff will happen if they aren't.
+  static void bulkUpdate(LEDBindingVectorPtr bindings, IntVectorPtr changed);
 
   std::string getName() noexcept;
 
@@ -54,6 +58,7 @@ private:
   BlinkStickPtr mBlinkstick;
   uint8_t mIndex;
   RGBColorPtr mColor;
+  int mBrightness;
   int mULedsFileDescriptor;
 };
 } // namespace BlinkstickUserspace

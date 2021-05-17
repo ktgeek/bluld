@@ -21,6 +21,7 @@
 // SOFTWARE.
 #include <unistd.h>
 #include <poll.h>
+#include <string>
 
 #include <hidapi/hidapi.h>
 
@@ -140,6 +141,9 @@ void BluldRunner::run()
     fds[i] = mLEDBindings->at(i)->getPollFd();
   }
 
+
+  IntVectorPtr touchedBindings = IntVectorPtr(new IntVector());
+
   mKeepRunning = true;
   while (mKeepRunning)
   {
@@ -156,9 +160,12 @@ void BluldRunner::run()
       {
         if (fds[i].revents && POLLIN)
         {
-          mLEDBindings->at(i)->processBrightnessChange();
+          touchedBindings->push_back(i);
         }
       }
+
+      LEDBinding::bulkUpdate(mLEDBindings, touchedBindings);
+      touchedBindings->clear();
     }
   }
 }
