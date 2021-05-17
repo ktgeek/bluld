@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 #include <blinkstick_userspace_led_daemon/RGBColor.hpp>
+#include <string>
 
 using namespace BlinkstickUserspace;
 
