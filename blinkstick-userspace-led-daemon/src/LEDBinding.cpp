@@ -54,7 +54,7 @@ LEDBinding::~LEDBinding()
 void LEDBinding::registerUserSpaceLED()
 {
   struct uleds_user_dev dev;
-  strncpy(dev.name, mName.c_str(), LED_MAX_NAME_SIZE);
+  strncpy(dev.name, mName.c_str(), LED_MAX_NAME_SIZE - 1);
   dev.max_brightness = 100;
 
   mULedsFileDescriptor = open("/dev/uleds", O_RDWR);
