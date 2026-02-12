@@ -158,7 +158,7 @@ void BluldRunner::run()
     {
       for (unsigned int i = 0; i < bindingsCount; i++)
       {
-        if (fds[i].revents && POLLIN)
+        if (fds[i].revents & POLLIN)
         {
           touchedBindings->push_back(i);
         }
